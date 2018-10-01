@@ -1,6 +1,7 @@
-import { Component, Output, EventEmitter, ContentChild, ContentChildren, QueryList, AfterContentInit } from '@angular/core';
+import { Component, Output, EventEmitter, ViewChild, AfterViewInit, ContentChild, ContentChildren, QueryList, AfterContentInit } from '@angular/core';
 
 import { AuthRememberComponent } from './auth-remember.component';
+import { AuthMessageComponent } from './auth-message.component';
 
 import { User } from './auth-form.interface';
 
@@ -19,17 +20,17 @@ import { User } from './auth-form.interface';
                 <input type="password" name="password" ngModel>
             </label>
             <ng-content select="auth-remember"></ng-content>
-            <div *ngIf="showMessage">
-                You will be logged in for 30 days
-            </div>
+            <auth-message [style.display]="(showMessage ? 'inherit' : 'none')"></auth-message>
             <ng-content select="button"></ng-content>
         </form>
     </div>
     `
 })
-export class AuthFormComponent implements AfterContentInit {
+export class AuthFormComponent implements AfterContentInit, AfterViewInit {
 
     public showMessage: boolean;
+
+    @ViewChild(AuthMessageComponent) message: AuthMessageComponent;
 
     @ContentChildren(AuthRememberComponent) public remember: QueryList<AuthRememberComponent>;
 
@@ -40,6 +41,9 @@ export class AuthFormComponent implements AfterContentInit {
     }
 
     public ngAfterContentInit() {
+        if (this.message) {
+            this.message.days = 30;
+        }
         if (this.remember) {
             // this.remember.checked.subscribe((checked: boolean) => {
             //     this.showMessage = checked;
@@ -49,6 +53,11 @@ export class AuthFormComponent implements AfterContentInit {
                 item.checked.subscribe((checked: boolean) => this.showMessage = checked);
             });
         }
+    }
+
+    public ngAfterViewInit() {
+        // this.message.days = 30;
+        console.log(this.message);
     }
 
 }
